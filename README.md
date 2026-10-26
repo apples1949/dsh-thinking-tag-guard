@@ -4,11 +4,12 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 包名 | `@local/dsh-thinking-tag-guard` |
-| 版本 | 1.2.0 |
+| 包名 | `@apples1949/dsh-thinking-tag-guard` |
+| 版本 | **不声明版本号**：跟随 `main` 分支，见 [更新与支持](#更新与支持) |
 | 类型 | DSH Host 插件（不是客户端插件，无 UI） |
 | 生效范围 | `llm/stream` + `agent/turn-stopping` 两个挂载点 |
 | 默认只守 | `providers: [hgapi]` |
+| 分发 | 只从本仓库装（没有发布到 npm）；也可通过自建格式 1 索引源在「插件 → 发现」里看到 |
 
 ## 它解决什么
 
@@ -96,11 +97,11 @@ ctx.on("llm/stream", (options, next) => {
 // <profile>/package.json
 {
   "dependencies": {
-    "@local/dsh-thinking-tag-guard": "link:../../plugins/dsh-thinking-tag-guard"
+    "@apples1949/dsh-thinking-tag-guard": "link:../../plugins/dsh-thinking-tag-guard"
   },
   "dsh": {
     "profile": {
-      "bundles": ["...", "@local/dsh-thinking-tag-guard"]
+      "bundles": ["...", "@apples1949/dsh-thinking-tag-guard"]
     }
   }
 }
@@ -110,15 +111,27 @@ ctx.on("llm/stream", (options, next) => {
 
 注意三点：
 
-- **必须用 `link:`（或 `file:`），不能用版本号**。`@local/*` 不在任何 registry 上，写 `"1.0.0"` 会让 pnpm 直接 `ERR_PNPM_FETCH_404`。
+- **本地路径必须用 `link:`（或 `file:`），不能用版本号**。这个包**没有发布到 npm**，写 `"1.2.0"` 会让 pnpm 直接 `ERR_PNPM_FETCH_404`；要从仓库装就走 `pnpm add github:apples1949/dsh-thinking-tag-guard`（见下）。
 - **`link:` 的源目录不能删**。pnpm 把它物化成符号链接，源目录消失后任何后续 `pnpm add` 都会报 `ENOENT`。
 - 想出现在插件列表里，**`dependencies` 和 `dsh.profile.bundles` 两处都要有**——管理页按 `installed && enabled` 过滤，少一处就不显示。
 
 **二、直接放进 profile 的 `node_modules`**
 
-把目录拷到 `<profile>/node_modules/@local/dsh-thinking-tag-guard/`，再往 `<profile>/cordis.patch.yml` 追加同样的 insert 行。这条路径不经过 pnpm，升级 DSH 不会被覆盖，但插件管理页看不到它，也没有开关。
+把目录拷到 `<profile>/node_modules/@apples1949/dsh-thinking-tag-guard/`，再往 `<profile>/cordis.patch.yml` 追加同样的 insert 行。这条路径不经过 pnpm，升级 DSH 不会被覆盖，但插件管理页看不到它，也没有开关。
 
 两种方式**不要同时用**，否则同一个 `id` 会被插入两次。
+
+**三、直接从 GitHub 仓库装**
+
+```sh
+dsh plugin --profile <profile> add github:apples1949/dsh-thinking-tag-guard
+# 或手写进 profile 的 dependencies
+pnpm add "github:apples1949/dsh-thinking-tag-guard#<sha>"
+```
+
+装完确认它在 profile 的 `dsh.profile.bundles` 里（`dsh plugin add` 一般会自动登记；没有就手动加包名），否则 loader 不会挂载它。
+
+> ⚠️ **先卸掉旧的那份再装。** 本插件的 loader 入口 id 固定是 `thinking-tag-guard`，同一个 id 在组合树里出现两次会让宿主**启动失败**。如果之前用的是别处的副本（比如 `@local/dsh-thinking-tag-guard`），先从 `dependencies`、`dsh.profile.bundles`、`node_modules` 里清干净。
 
 **生效需要重启宿主进程。** HMR 只监听 `cordis.patch.yml` 和 manifest，不监听插件源码（`hmr` 条目的 `root` 是空数组），所以改完 `index.js` 必须重启 DSH 才能加载新代码。
 
@@ -165,6 +178,13 @@ node test/dsml.mjs    # DSML 私有标记清洗，纯函数，无依赖
 - 判据是启发式的语言特征，不是模型级的意图理解。换一种模型或换一种网关，泄漏的文本形状可能变，届时第 7 组的基线样本需要重新采集。
 - 流层的哨兵串扫描（`isScaffolding`）**没有**中文门槛，而回合收尾的 `detectLeak` 有（那里中文正文引用哨兵串不算泄漏）。所以一段以中文为主的正文里只要出现一个未闭合的 `<thinking>`，整块仍会被搬进思考通道——讨论协议/写教程时要注意。
 - 正文以 `summary:`、`analysis:` 之类**裸词**开头会被当成标记，整块搬进思考。这是"识别不带尖括号的标记"的代价；不想要就关 `bareMarkers`。
+
+## 更新与支持
+
+- **不声明版本号。** `package.json` 里的 `version` 只是包管理器的技术要求，不是发版节奏，也不构成兼容性承诺；这个仓库没有 `releases`、没有更新日志承诺。
+- **仅按维护者自己的需求更新**，不保证会继续更新，也不保证跟进新版 DSH。能用就用，别把它当有 SLA 的依赖。
+- 想要稳定就钉提交：`github:apples1949/dsh-thinking-tag-guard#<sha>`。
+- 通过自建索引源安装时，条目钉在某个 commit 上——只有索引被手动刷新时才会变。
 
 ## 许可证
 

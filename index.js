@@ -60,7 +60,7 @@
  * `<thinking>` mention in ordinary prose stays text. Both are switchable with
  * `tailMarkers: false` / `bareMarkers: false`.
  *
- * @module @local/dsh-thinking-tag-guard
+ * @module @apples1949/dsh-thinking-tag-guard
  */
 
 import { randomUUID } from "node:crypto";

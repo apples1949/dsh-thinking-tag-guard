@@ -1,4 +1,4 @@
-// Regression suite for @local/dsh-thinking-tag-guard.
+// Regression suite for @apples1949/dsh-thinking-tag-guard.
 //
 // The guard rewrites an `llm/stream` chunk stream, so every assertion here feeds
 // chunks through `guard()` and checks what a real `BlockAssembler` commits —

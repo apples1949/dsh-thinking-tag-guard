@@ -1,8 +1,13 @@
 {
-  "name": "@local/dsh-thinking-tag-guard",
+  "name": "@apples1949/dsh-thinking-tag-guard",
   "version": "1.2.0",
   "private": true,
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apples1949/dsh-thinking-tag-guard.git"
+  },
+  "homepage": "https://github.com/apples1949/dsh-thinking-tag-guard#readme",
   "description": "Route-scoped guard: moves reasoning that leaked into the assistant text channel back into the reasoning channel for any marker spelling (bracketed, bare head word, bare tail /name, or a bracketed pair anywhere), reclassifies marker-less English narration whenever the response kept calling tools, drops text that replays the reasoning already streamed, strips gateway-private special tokens (<|DSML|...>, <|endoftext|>, ...) from both channels including tokens split across deltas, and keeps a turn from closing silently when its last tool-less step leaked its thinking into the answer or answered in English-only.",
   "main": "index.js",
   "exports": {

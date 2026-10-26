@@ -1,4 +1,4 @@
-# @local/dsh-thinking-tag-guard bundle patch.
+# @apples1949/dsh-thinking-tag-guard bundle patch.
 #
 # This file is the `dsh.bundle.patch` of the package: when the plugin is listed
 # in a profile's `dsh.profile.bundles`, the profile boot reads this and inserts
@@ -26,7 +26,7 @@
 # route you do not use never fires.
 - insert:
     - id: thinking-tag-guard
-      name: '@local/dsh-thinking-tag-guard'
+      name: '@apples1949/dsh-thinking-tag-guard'
       config:
         providers:
           - hgapi
