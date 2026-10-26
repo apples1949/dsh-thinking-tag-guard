@@ -1,0 +1,25 @@
+{
+  "name": "@local/dsh-thinking-tag-guard",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Route-scoped guard: moves reasoning that leaked into the assistant text channel back into the reasoning channel for any marker spelling (bracketed, bare head word, bare tail /name, or a bracketed pair anywhere), reclassifies marker-less English narration whenever the response kept calling tools, drops text that replays the reasoning already streamed, strips gateway-private special tokens (<|DSML|...>, <|endoftext|>, ...) from both channels including tokens split across deltas, and keeps a turn from closing silently when its last tool-less step leaked its thinking into the answer or answered in English-only.",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "node test/run.mjs",
+    "test:dsml": "node test/dsml.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "meta": {
+    "title": "思考归位 + 静默停止守卫",
+    "description": "把网关漏进正文的思考脚手架归位到思考通道：thinking / summary / analysis / analyse 等，带不带尖括号都识别——开头单独的 thinking、末尾单独的 /thinking、以及块内成对的 <tag>…</tag> 都会整段移入思考；没有标记、纯英文、并且本响应调用过工具的叙事独白也会归位。当最后一步没有工具调用、答案缺失或只是思考泄漏时，阻止回合静默结束并催促继续；英文独答时提醒改用中文。另：从正文与思考两个通道清除网关私有的 <|DSML|…> 特殊标记（含跨分片与半截标记）。"
+  }
+}

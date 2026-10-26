@@ -1,0 +1,32 @@
+# @local/dsh-thinking-tag-guard bundle patch.
+#
+# This file is the `dsh.bundle.patch` of the package: when the plugin is listed
+# in a profile's `dsh.profile.bundles`, the profile boot reads this and inserts
+# the row below into the composed config. It exists so the plugin can be
+# installed as an ordinary profile dependency (visible in the plugin manager,
+# toggleable) instead of hand-editing `cordis.patch.yml`.
+#
+# The guard is Host-only and works at two points:
+#
+#   1. `llm/stream` — moves leaked reasoning back into reasoning blocks. A marker
+#      is `thinking` / `summary` / `analysis` / `analyse` / … in any spelling:
+#      `<name>…</name>`, a bare head word, a bare tail `/name`, or a bracketed
+#      pair anywhere in the block. It also reclassifies marker-less English
+#      narration when the response kept calling tools, and drops text that
+#      exactly replays the reasoning already streamed (the gateway's leak
+#      signature).
+#
+#   2. `agent/turn-stopping` — when a tool-less step would close the turn while
+#      its answer is missing or is leaked thinking, it steers a follow-up so the
+#      turn keeps going instead of ending silently; it also nudges the model back
+#      to Chinese when a turn's final answer came out English-only.
+#
+# `providers` narrows the guard to the route you actually use. Edit it to match
+# your own provider name in the profile's `llm-pi-ai` row — a guard pointed at a
+# route you do not use never fires.
+- insert:
+    - id: thinking-tag-guard
+      name: '@local/dsh-thinking-tag-guard'
+      config:
+        providers:
+          - hgapi
